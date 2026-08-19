@@ -1,0 +1,36 @@
+name: Build APK
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Descarcă codul
+        uses: actions/checkout@v4
+
+      - name: Instalează Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.5'
+          channel: 'stable'
+          cache: true
+
+      - name: Descarcă dependențele
+        run: flutter pub get
+        working-directory: linkpi_flutter
+
+      - name: Compilează APK
+        run: flutter build apk --release
+        working-directory: linkpi_flutter
+
+      - name: Urcă APK (descărcabil 7 zile)
+        uses: actions/upload-artifact@v4
+        with:
+          name: LinkPi-Android
+          path: linkpi_flutter/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 7
